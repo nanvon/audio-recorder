@@ -27,12 +27,14 @@ if (navigator.mediaDevices.getUserMedia) {
         chunks.push(e.data);
         //ws发送录屏切片
         //...
+        console.log('录音切片：', e.data);
       };
 
       mediaRecorder.onstop = (e) => {
         var blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
         chunks = [];
         var audioURL = window.URL.createObjectURL(blob);
+        console.log('audioURL: ', audioURL);
         player.src = audioURL;
       };
     },
