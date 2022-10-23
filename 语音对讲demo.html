@@ -145,7 +145,7 @@
      * WebSocket
      */
     function useWebSocket() {
-      ws = new WebSocket('ws://192.168.6.125:3000/socketTest');
+      ws = new WebSocket('ws://localhost:3000/socketTest');
       ws.binaryType = 'arraybuffer'; //传输的是 ArrayBuffer 类型的数据
       ws.onopen = function () {
         console.log('握手成功');
