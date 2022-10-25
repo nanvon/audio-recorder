@@ -22,16 +22,15 @@ let record = null; //多媒体对象，用来处理音频
 
 function init(rec) {
   record = rec;
-  console.log('record: ', record);
 }
 
 //录音对象
 let Recorder = function (stream) {
   let sampleBits = 16; //输出采样数位 8, 16
   let sampleRate = 8000; //输出采样率
-  let context = new AudioContext();
-  let audioInput = context.createMediaStreamSource(stream);
-  let recorder = context.createScriptProcessor(4096, 1, 1);
+  let context = new AudioContext(); //首先new一个AudioContext对象，作为声源的载体
+  let audioInput = context.createMediaStreamSource(stream); //将声音输入这个对像，stream 就是上面返回音源
+  let recorder = context.createScriptProcessor(4096, 1, 1);//创建声音的缓存节点，第一个参数缓存大小，一般数值为1024,2048,4096，这里选用4096，第二个和第三个参数指的是输入和输出的声道数
   let audioData = {
     size: 0, //录音文件长度
     buffer: [], //录音缓存
@@ -90,7 +89,6 @@ let Recorder = function (stream) {
     let reader = new FileReader();
     reader.onload = (e) => {
       let outBuffer = e.target.result;
-      console.log('e.target.result: ', e.target.result);
       let arr = new Int8Array(outBuffer);
       if (arr.length > 0) {
         let tmpArr = new Int8Array(1024);
@@ -135,6 +133,7 @@ let Recorder = function (stream) {
     audioData.clear();
   };
 
+  // 此方法音频缓存，这里audioData是自定义对象，这个对象会实现wav文件转换，缓存pcm数据等
   recorder.onaudioprocess = function (e) {
     let inputBuffer = e.inputBuffer.getChannelData(0);
     audioData.input(inputBuffer);
