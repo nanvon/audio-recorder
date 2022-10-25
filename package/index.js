@@ -133,7 +133,7 @@ let Recorder = function (stream) {
     audioData.clear();
   };
 
-  // 此方法音频缓存，这里audioData是自定义对象，这个对象会实现wav文件转换，缓存pcm数据等
+  // 此方法音频缓存，这里audioData是自定义对象，这个对象会实现缓存pcm数据
   recorder.onaudioprocess = function (e) {
     let inputBuffer = e.inputBuffer.getChannelData(0);
     audioData.input(inputBuffer);
