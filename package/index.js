@@ -1,6 +1,8 @@
 /**
+ * 语音对讲
  * 使用：
 import { speak, stop } from '@/utils/voice/index'
+
 const start = () => {
   const config = {
     url: 'ws://localhost:1111/socketTest'
@@ -30,7 +32,13 @@ let Recorder = function (stream) {
   let sampleRate = 8000; //输出采样率
   let context = new AudioContext(); //首先new一个AudioContext对象，作为声源的载体
   let audioInput = context.createMediaStreamSource(stream); //将声音输入这个对像，stream 就是上面返回音源
-  let recorder = context.createScriptProcessor(4096, 1, 1);//创建声音的缓存节点，第一个参数缓存大小，一般数值为1024, 2048, 4096, 8192, 16384，这里选用4096，第二个和第三个参数指的是输入和输出的声道数
+  /**
+   * createScriptProcessor 创建声音的缓存节点
+   * 第一个参数为缓存区大小，该取值控制着 audioprocess 事件被分派的频率，以及每一次调用多少样本帧被处理,
+   * 一般数值为1024, 2048, 4096, 8192, 16384，这里选用4096。
+   * 第二个和第三个参数指的是输入和输出的声道数
+   */
+  let recorder = context.createScriptProcessor(4096, 1, 1);
   let audioData = {
     size: 0, //录音文件长度
     buffer: [], //录音缓存
