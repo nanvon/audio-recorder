@@ -39,6 +39,7 @@ let Recorder = function (stream) {
    * 第二个和第三个参数指的是输入和输出的声道数
    */
   let recorder = context.createScriptProcessor(4096, 1, 1);
+  // 对音频信号进行处理
   let audioData = {
     size: 0, //录音文件长度
     buffer: [], //录音缓存
@@ -54,6 +55,7 @@ let Recorder = function (stream) {
       this.buffer.push(new Float32Array(data));
       this.size += data.length;
     },
+    // 将收到的音频信号进行预处理，即将二维数组转成一维数组，并且对音频信号进行降采样
     compress: function () {
       //合并
       let data = new Float32Array(this.size);
@@ -62,7 +64,7 @@ let Recorder = function (stream) {
         data.set(this.buffer[i], offset);
         offset += this.buffer[i].length;
       }
-      //压缩
+      //压缩：即降采样，采取每interval长度取一个信号点的方式
       let compression = parseInt(this.inputSampleRate / this.outputSampleRate);
       let length = data.length / compression;
       let result = new Float32Array(length);
@@ -77,6 +79,7 @@ let Recorder = function (stream) {
     },
     encodePCM: function () {
       //这里不对采集到的数据进行其他格式处理，如有需要均交给服务器端处理。
+      //得到格式为pcm,采样率为16k,位深为16bit的音频文件
       let sampleRate = Math.min(this.inputSampleRate, this.outputSampleRate);
       let sampleBits = Math.min(this.inputSampleBits, this.outputSampleBits);
       let bytes = this.compress();
@@ -84,6 +87,7 @@ let Recorder = function (stream) {
       let buffer = new ArrayBuffer(dataLength);
       let data = new DataView(buffer);
       let offset = 0;
+      // 将音频信号转为16bit位深
       for (let i = 0; i < bytes.length; i++, offset += 2) {
         let s = Math.max(-1, Math.min(1, bytes[i]));
         data.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
@@ -143,7 +147,7 @@ let Recorder = function (stream) {
 
   // 此方法音频缓存，这里audioData是自定义对象，这个对象会实现缓存pcm数据
   recorder.onaudioprocess = function (e) {
-    let inputBuffer = e.inputBuffer.getChannelData(0);
+    let inputBuffer = e.inputBuffer.getChannelData(0); //取单音道信号
     audioData.input(inputBuffer);
     sendData();
   };
