@@ -7,7 +7,7 @@ class Media {
     };
     let oldUserMedia = function (constraints) {
       let getUserMedia =
-        navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
       if (!getUserMedia) {
         return Promise.reject(new Error('getUserMedia is not implemented in this browser'));//可能原因有：浏览器不支持、网址不是https 等等
       }
