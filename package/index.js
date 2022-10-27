@@ -103,7 +103,7 @@ let Recorder = function (stream) {
       let outBuffer = e.target.result;
       let arr = new Int8Array(outBuffer);
       if (arr.length > 0) {
-        let tmpArr = new Int8Array(1024);
+        let tmpArr = new Int8Array(1024); //1024字节
         let j = 0;
         for (let i = 0; i < arr.byteLength; i++) {
           tmpArr[j++] = arr[i];
@@ -146,6 +146,7 @@ let Recorder = function (stream) {
   };
 
   // 此方法音频缓存，这里audioData是自定义对象，这个对象会实现缓存pcm数据
+  // 一个缓存区触发一次： 4096个样本帧
   recorder.onaudioprocess = function (e) {
     let inputBuffer = e.inputBuffer.getChannelData(0); //取单音道信号
     audioData.input(inputBuffer);
