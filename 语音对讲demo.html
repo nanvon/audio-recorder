@@ -12,10 +12,12 @@
   <body>
     <button id="intercomBegin">开始对讲</button>
     <button id="intercomEnd">关闭对讲</button>
+    <button id="downloadPcm">下载PCM文件</button>
   </body>
   <script type="text/javascript">
     var begin = document.getElementById('intercomBegin');
     var end = document.getElementById('intercomEnd');
+    var downPcm = document.getElementById('downloadPcm');
 
     var ws = null; //实现WebSocket
     var record = null; //多媒体对象，用来处理音频
@@ -89,6 +91,7 @@
         //对以获取的数据进行处理(分包)
         var reader = new FileReader();
         reader.onload = (e) => {
+          console.log('读取完成');
           var outbuffer = e.target.result;
           var arr = new Int8Array(outbuffer);
           if (arr.length > 0) {
@@ -98,7 +101,7 @@
               tmparr[j++] = arr[i];
               if ((i + 1) % 1024 == 0) {
                 ws.send(tmparr);
-                console.log('tmparr: ', tmparr);
+                // console.log('tmparr: ', tmparr);
                 if (arr.byteLength - i - 1 >= 1024) {
                   tmparr = new Int8Array(1024);
                 } else {
@@ -108,12 +111,18 @@
               }
               if (i + 1 == arr.byteLength && (i + 1) % 1024 != 0) {
                 ws.send(tmparr);
-                console.log('tmparr: ', tmparr);
+                // console.log('tmparr: ', tmparr);
               }
             }
           }
         };
+        console.log('------');
         reader.readAsArrayBuffer(audioData.encodePCM());
+        var oA = document.createElement('a');
+        oA.href = window.URL.createObjectURL(audioData.encodePCM());
+        oA.download = 'test.pcm';
+        oA.click();
+        record.stop();
         audioData.clear(); //每次发送完成则清理掉旧数据
       };
 
@@ -135,9 +144,10 @@
       };
 
       recorder.onaudioprocess = function (e) {
+        console.log('onaudioprocess: -----------');
         var inputBuffer = e.inputBuffer.getChannelData(0);
         audioData.input(inputBuffer);
-        sendData();
+        // sendData();
       };
     };
 
@@ -146,6 +156,8 @@
      */
     function useWebSocket() {
       ws = new WebSocket('ws://localhost:1111/socketTest');
+      // ws = new WebSocket('wss://gbs.liveqing.com:10010/api/v1/control/ws-talk/34020000001110000234/34020000001320000234?format=pcm');
+      console.log('ws: ', ws);
       ws.binaryType = 'arraybuffer'; //传输的是 ArrayBuffer 类型的数据
       ws.onopen = function () {
         console.log('握手成功');
@@ -211,13 +223,26 @@
     end.onclick = function () {
       if (ws) {
         ws.close();
-        var oA = document.createElement('a');
-        oA.href = window.URL.createObjectURL(record.getBlob());
-        oA.download = 'test.pcm';
-        oA.click();
         record.stop();
         console.log('关闭对讲以及WebSocket');
       }
+    };
+
+    /**
+     * 下载PCM文件
+     */
+    downPcm.onclick = function () {
+      if (record === null) return alert('请先开始录音');
+
+      var oA = document.createElement('a');
+      oA.href = window.URL.createObjectURL(record.getBlob());
+      console.log('oA.href: ', oA.href);
+      oA.download = oA.href.split('/')[3] + '.pcm';
+      oA.click();
+
+      ws.close();
+      record.stop();
+      console.log('关闭对讲以及WebSocket，然后下载PCM文件');
     };
   </script>
 </html>
