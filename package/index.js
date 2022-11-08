@@ -1,5 +1,5 @@
 /**
- * 语音对讲1122333
+ * 语音对讲
  * 使用：
 import { speak, stop } from '@/utils/voice/index'
 
